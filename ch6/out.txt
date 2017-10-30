@@ -1,0 +1,253 @@
+ Stuff 
+ Looping over i
+Looping over j 
+ prods index = 0
+Looping over j 
+ prods index = 1
+Looping over j 
+ prods index = 2
+ end of outer loop i = 0
+ Looping over i
+Looping over j 
+ prods index = 3
+Looping over j 
+ prods index = 4
+Looping over j 
+ prods index = 5
+ end of outer loop i = 1
+ Looping over i
+Looping over j 
+ prods index = 6
+Looping over j 
+ prods index = 7
+Looping over j 
+ prods index = 8
+ end of outer loop i = 2
+Exited loop 
+For test str = bbbbac can evaluate to a?
+Initializing R 
+ Done initilizing R 
+s = 1
+i = 0
+j = 1
+k = 0
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = c
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+i = 1
+j = 2
+k = 1
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = c
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+i = 2
+j = 3
+k = 2
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = c
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+i = 3
+j = 4
+k = 3
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = c
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+i = 4
+j = 5
+k = 4
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+s = 1
+i = 0
+j = 1
+k = 0
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+i = 1
+j = 2
+k = 1
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+i = 2
+j = 3
+k = 2
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+i = 3
+j = 4
+k = 3
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = c
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+i = 4
+j = 5
+k = 4
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = c
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+s = 1
+i = 0
+j = 1
+k = 0
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = c
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+i = 1
+j = 2
+k = 1
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = c
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+i = 2
+j = 3
+k = 2
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = c
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+i = 3
+j = 4
+k = 3
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+i = 4
+j = 5
+k = 4
+Got RForSymP symp = a
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = b
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+Got RForSymP symp = c
+Got RForSymQ symq = a
+Got RForSymQ symq = b
+Got RForSymQ symq = c
+For symbol = a
+- - - - - - 
+- - - - - - 
+- - - - - - 
+- - - - - - 
+- - - - 4 4 
+- - - - - - 
+----------------------
+For symbol = b
+0 0 - - - - 
+- 1 1 - - - 
+- - 2 2 - - 
+- - - 3 - - 
+- - - - - - 
+- - - - - - 
+----------------------
+For symbol = c
+- - - - - - 
+- - - - - - 
+- - - - - - 
+- - - - 3 - 
+- - - - - - 
+- - - - - 5 
+----------------------
+ No.
