@@ -745,11 +745,13 @@ public:
     double calcProb(int n, int k, vector<double> p) {
         vector<vector<double>> P(n, vector<double>(n, 0.0));
         
-        for(int j = 0; j < n; ++j)
-            P[0][j] = p[j];
+        P[0][0] = p[0];
+
+        for(int i = 1; i < n; ++i)
+            P[i][0] = p[i] + P[i-1][0]*(1-p[i]);
 
         for(int i = 1; i < n; ++i) {
-            for(int j = 1; j < n; ++j) {
+            for(int j = 1; j < i; ++j) {
                 P[i][j] = P[i-1][j-1]*p[j] + P[i-1][j]*(1-p[j]);
             }
         }
@@ -776,6 +778,56 @@ public:
     }
 };
 
+
+/*
+Given two strings x = x 1 x 2 · · · x n and y = y 1 y 2 · · · y m , 
+we wish to find the length of their longest common subsequence, that is, 
+the largest k for which there are indices i 1 < i 2 < · · · < i k and
+j 1 < j 2 < · · · < j k with x i 1 x i 2 · · · x i k = y j 1 y j 2 · · · y j k . 
+Show how to do this in time O(mn).
+*/
+//  LCS[i, j] = longest common subsequence ending at x[i] and y[j]
+//  LCS[i, j] = if x[i] == y[j], 1 + LCS[i-1, j-1]
+//              else max(LCS[i-1, j], max(LCS[i, j-1], LCS[i-1, j-1]))
+//  LCS[0, j] = 1 if x[0] == y[j] for all j = [0, m)
+//  LCS[i, 0] = 1 if y[0] == x[i] for all i = [0, n)
+//
+//
+//
+//
+class LongestCommonSubSeq {
+public:
+    int calcLcs(const string& x, const string& y) {
+        int n = x.length();
+        int m = y.length();
+        vector<vector<int>> LCS(x.length(), vector<int>(y.length(), 0));
+        
+        for(int i = 0; i < n; ++i)
+            LCS[i][0] = (x[i] == y[0]) ? 1 : 0;
+        for(int j = 0; j < m; ++j)
+            LCS[0][j] = (x[0] == y[j]) ? 1 : 0;
+
+        for(int i = 1; i < n; ++i) {
+            for(int j = 1; j < m; ++j) {
+                if(x[i] == y[j])
+                    LCS[i][j] = 1 + LCS[i-1][j-1];
+                else
+                    LCS[i][j] = max(LCS[i-1][j],
+                                    max(LCS[i][j-1], LCS[i-1][j-1]));
+            }
+        }
+        return LCS[n-1][m-1];
+    }
+
+    void test() {
+        string x = "polynomial";
+        string y = "exponential";
+
+        cout << "Length of longest common subsequence of " 
+             << x << " and " << y << " is " << calcLcs(x, y) << endl;
+    }
+};
+
 int main() {
     //ContigSubseq cs;
     //cs.test();
@@ -789,7 +841,9 @@ int main() {
     //lcs.test();
     //StringSplit ss;
     //ss.test();
-    CountingHeads ch;
-    ch.test();
+    //CountingHeads ch;
+    //ch.test();
+    LongestCommonSubSeq lcs;
+    lcs.test();
     return 0;
 }
