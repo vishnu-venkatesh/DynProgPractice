@@ -278,7 +278,7 @@ class PebbleCheckerBoard {
             choice[n-1].sum = sums[n-1][p];
             choice[n-1].patternIn = p;
             int curSum = choice[n-1].sum;
-            for(unsigned j = n-2; j >= 0; --j) {
+            for(int j = n-2; j >= 0; --j) {
                 for(unsigned q = 0; q < patterns.size(); ++q) {
                     
                     if(choice[j].sum < sums[j][q]) {
@@ -375,7 +375,7 @@ public:
         cout << "Initializing R " << endl;
         // Initialize R.
         for(auto& pair : table) {
-            R[pair.first] = move(BoolMat(len, BoolVec(len)));
+            R[pair.first] = BoolMat(len, BoolVec(len));
             for(int x = 0; x < len; ++x)
                 R[pair.first][x][x] = IndexOrBool(s[x] == pair.first ? x : -1);
         }
@@ -466,13 +466,6 @@ O(n 2 ).
 // P[i][j] = length of longest pal subseq in x[i,j]
 // P[i][j] = if x[i] == x[j], 2 + P[i+1][j-1], else max(P[i+1][j-1], max(P[i][j-1], P[i+1][j])) 
 //
-//
-//
-//
-//
-//
-
-
 
 class PalSubSeq {
 public:
@@ -828,6 +821,585 @@ public:
     }
 };
 
+
+/*
+Consider the following game. A “dealer” produces a sequence s 1 · · · s n of “cards,” face up, where
+each card s i has a value v i . Then two players take turns picking a card from the sequence, but
+can only pick the first or the last card of the (remaining) sequence. The goal is to collect cards of
+largest total value. (For example, you can think of the cards as bills of different denominations.)
+Assume n is even.
+
+Give an O(n^2 ) algorithm to compute an optimal strategy for the first player. Given the
+initial sequence, your algorithm should precompute in O(n^2 ) time some information, and
+then the first player should be able to make each move optimally in O(1) time by looking
+up the precomputed information.
+*/
+//   
+//   score[i, j] = max( 
+//                      min(score[i+1, j-1] + v[j], score[i+2, j] + v[i+1]) + v[i],
+//                      min(score[i, j-2] + v[j-1], score[i+1, j-1] + v[i]) + v[j])
+//
+//
+//
+
+struct Pick {
+    int scr;
+    int indexChosen;
+    Pick() : scr(0), indexChosen(-1) {}
+    Pick(int s, int i) : scr(s), indexChosen(i) {}
+};
+
+
+
+class CardSeqGame {
+    vector<vector<Pick>> score;     
+    public:
+    
+    CardSeqGame(vector<int>& v) : score(v.size(), vector<Pick>(v.size())) {    
+        int n = v.size();
+        
+        for(int i = 0; i < n; ++i) 
+            score[i][0].scr = 0;            
+
+        for(int j = 0; j < n; ++j)
+            score[0][j].scr = 0;
+
+        for(int z = 0; z < n; ++z) {
+            score[z][z].scr = v[z];
+            score[z][z].indexChosen = z;
+        }
+
+        for(int k = 0; k < n-1; ++k) {
+            if(v[k] > v[k+1]) {
+                score[k][k+1].scr = v[k];
+                score[k][k+1].indexChosen = k;
+            } else {
+                score[k][k+1].scr = v[k+1];
+                score[k][k+1].indexChosen = k+1;
+            }
+        }
+        
+        for(int s = 2; s < n; ++s) {
+            for(int i = 0; i < n - s; ++i) {
+                int j = i + s;
+                
+                int score_with_first = 
+                    min(score[i+1][j-1].scr, score[i+2][j].scr) + v[i];
+                int score_with_last = 
+                    min(score[i][j-2].scr, score[i+1][j-1].scr) + v[j];
+
+                if(score_with_first > score_with_last) {
+                    score[i][j].scr = score_with_first;
+                    score[i][j].indexChosen = i;
+                } else {
+                    score[i][j].scr = score_with_last;
+                    score[i][j].indexChosen = j;
+                }
+            }
+        }
+    }
+
+    Pick takeCard(int i, int j) {
+        return score[i][j];   
+    }
+
+    void printStrategyTable() {
+        cout << "Strategy Table" << endl;;
+        for(int i = 0; i < score.size(); ++i) {
+            for(int j = 0; j < score.size(); ++j) {
+                cout << setw(4) << score[i][j].scr;
+            }
+            cout << endl;
+        }
+        cout << "----------------------------" << endl;
+
+        for(int i = 0; i < score.size(); ++i) {
+            for(int j = 0; j < score.size(); ++j) {
+                cout << setw(4) << score[i][j].indexChosen;
+            }
+            cout << endl;
+        }
+    }
+
+    static void test() {
+        vector<int> v{2,10,3,20,4,1};
+        CardSeqGame csg(v);
+
+        csg.printStrategyTable();
+
+        int i = 0;
+        int j = v.size()-1;
+        vector<int> player {0, 0};
+        unsigned int curPlayer = 0;
+        while(i < j) {
+            cout << "Remaining cards (" << i << ", " << j << "): ";
+            for(int k = i; k <= j; ++k)
+                cout << v[k] << " ";
+            cout << endl;
+            Pick curPick = csg.takeCard(i, j);
+            player[curPlayer] += v[curPick.indexChosen];
+            if(curPick.indexChosen == i)
+                ++i;
+            else if (curPick.indexChosen == j)
+                --j;
+            else {
+                ++i; --j;
+                cout << "We have a problem!!!" << endl;
+            }
+            cout << "Player " << curPlayer << " picked card " << curPick.indexChosen 
+                 << " with value " << v[curPick.indexChosen] << endl;;
+            cout << "Player 0 score = " << player[0] << endl;
+            cout << "Player 1 score = " << player[1] << endl;
+            curPlayer = (curPlayer+1) % 2;
+        }
+
+        cout << "Player 0 Score = " << player[0] 
+             << " Predicted = " << csg.takeCard(0, v.size()-1).scr << endl;
+    }
+};
+
+
+/*
+Cutting cloth. You are given a rectangular piece of cloth with dimensions X × Y , where X and
+Y are positive integers, and a list of n products that can be made using the cloth. For each
+product i ∈ [1, n] you know that a rectangle of cloth of dimensions a i × b i is needed and that the
+final selling price of the product is c i . Assume the a i , b i , and c i are all positive 
+integers. You have a machine that can cut any rectangular piece of cloth into two pieces either 
+horizontally or vertically. Design an algorithm that determines the best return on the X × Y 
+piece of cloth, that is, a strategy for cutting the cloth so that the products made from the 
+resulting pieces give the maximum sum of selling prices. You are free to make as many copies 
+of a given product as you wish, or none if desired.
+*/
+//
+//    MR[y, x] = max ( MR[y - b, x - a] + c) 
+//
+//
+class CuttingCloth {
+public:
+   struct Product {
+        string name;
+        int a;
+        int b;
+        int c;
+    };
+
+    struct Choice {
+        int val;
+        int index;
+        int way;  // 0 if choice fits a x b, 1 if it fits b x a
+
+        Choice() : val(0), index(-1), way(0) {}
+    };
+
+private:
+    vector<vector<Choice>> MR;
+    vector<Product> prods;
+public:
+    CuttingCloth(int X, int Y, vector<Product>& prodListArg) : 
+        MR(Y+1, vector<Choice>(X+1)), prods(prodListArg) {
+        int numProds = prods.size();
+
+        // TODO: Finish population of defaults
+        for(int k = 0; k < numProds; ++k) {
+            Choice ch1;
+            Choice ch2;
+            ch2.way = 1;
+
+            ch1.val = prods[k].c;
+            ch1.index = k;
+            ch2.val = prods[k].c;
+            ch2.index = k;
+
+            if(prods[k].b <= Y && prods[k].a <= X)
+                MR[prods[k].b][prods[k].a] = ch1;
+
+            if(prods[k].a <= Y && prods[k].b <= X)
+                MR[prods[k].a][prods[k].b] = ch2;
+
+        }
+
+        for(int i = 1; i <= Y; ++i) {
+            for(int j = 1; j <= X; ++j) {
+                Choice optChoiceWay1;
+                Choice optChoiceWay2;
+                optChoiceWay2.way = 1;
+                for(int k = 0; k < numProds; ++k) {
+
+                    if((i > prods[k].b && j > prods[k].a) ||
+                       (i == prods[k].b && j > prods[k].a) || 
+                       (i > prods[k].b && j == prods[k].a)) {
+                        int curTotPrice = MR[i - prods[k].b][j - prods[k].a].val + 
+                                          MR[prods[k].b][j - prods[k].a].val + 
+                                          MR[i - prods[k].b][prods[k].a].val + 
+                                          prods[k].c;
+                        if(curTotPrice > optChoiceWay1.val) {
+                            optChoiceWay1.val = curTotPrice;
+                            optChoiceWay1.index = k;
+                        }
+                    }
+
+                    if((i > prods[k].a && j > prods[k].b) ||
+                       (i == prods[k].a && j > prods[k].b) ||
+                       (i > prods[k].a && j == prods[k].b)) {
+                        int curTotPrice = MR[i - prods[k].a][j - prods[k].b].val + 
+                                          MR[prods[k].a][j - prods[k].b].val + 
+                                          MR[i - prods[k].a][prods[k].b].val + 
+                                          prods[k].c;
+                        if(curTotPrice > optChoiceWay2.val) {
+                            optChoiceWay2.val = curTotPrice;
+                            optChoiceWay2.index = k;
+                        }
+                    }
+                }
+                if(optChoiceWay1.val > optChoiceWay2.val)
+                    MR[i][j] = optChoiceWay1;
+                else
+                    MR[i][j] = optChoiceWay2;
+            }
+        }
+    }
+
+    vector<int> maxReturn(int x, int y, int& totalSellPrice) {
+        vector<int> prodList;
+        totalSellPrice = 0;
+        int i = y;
+        int j = x;
+
+        while ( i > 0 && j > 0) {
+            totalSellPrice += MR[i][j].val;
+            prodList.push_back(MR[i][j].index);
+
+            i -= prods[MR[i][j].index].b;
+            j -= prods[MR[i][j].index].a;
+        }
+        return prodList;
+    }
+
+    void printTable() {
+        cout << "Total Returns" << endl;
+        int Y = MR.size()-1;
+        int X = MR[0].size()-1;
+        for(int i = 0; i <= Y; ++i) {
+            for(int j = 0; j <= X; ++j) {
+                cout << setw(6) << MR[i][j].val;
+            }
+            cout << endl;
+        }
+        cout << "Optimal Choices" << endl;
+        for(int i = 0; i <= Y; ++i) {
+            for(int j = 0; j <= X; ++j) {
+                cout << setw(6) << MR[i][j].index;
+            }
+            cout << endl;
+        }
+    }
+
+    static void test() {
+        vector<Product> prodList { {"A", 1, 1, 1}, {"B", 3, 1, 3}, {"C",3, 3, 9}, {"D", 2, 5, 10}};
+        CuttingCloth cc(5, 6, prodList);
+       
+        cout << "Possible Products:" << endl;
+        for(Product p: prodList) {
+            cout << p.name << " = (" << p.a << ", " << p.b << ", " << p.c << ")" << endl;
+        }
+ 
+        cc.printTable();
+        
+        int totPrice = 0;
+        vector<int> optProdChoices = cc.maxReturn(3, 4, totPrice);
+
+        cout << "Optimal Product List (3, 4): ";
+        for(int index : optProdChoices)
+            cout << setw(4) << prodList[index].name;
+        cout << endl;
+        cout << "Total Price = " << totPrice << endl;
+    }
+};
+
+
+class CoinChangeProblems {
+public:
+
+    /*
+        Given an unlimited supply of coins of denominations x 1 , x 2 , . . . , x n , we wish to make change for
+        a value v; that is, we wish to find a set of coins whose total value is v. This might not be possible:
+        for instance, if the denominations are 5 and 10 then we can make change for 15 but not for 12.
+        Give an O(nv) dynamic-programming algorithm for the following problem.
+        Input: x 1 , . . . , x n ; v.
+        Question: Is it possible to make change for v using coins of denominations x 1 , . . . , x n ?
+    */
+    // change is the amount of each coin needed to make change.
+    // true is returned if it is possible to make change with the given coins
+    bool makeChangeUnlimitedSupplyOfCoins(int val, vector<int>& x, vector<int>& change ) {
+        vector<vector<int>> D (val + 1, vector<int>(x.size(), 0));
+        vector<int> numCoins(val+1, -1);
+
+        for(int k = 0; k < x.size(); ++k) {
+            if(val >= x[k]) {
+                numCoins[x[k]] = 1;
+                D[x[k]][k] = 1;
+            }
+        }
+        cout << "Finisihed initializing amounts for 1 coin" << endl;
+        for(int i = 1; i <= val; ++i) {
+            cout << "i = " << i << endl;;
+            for(int k = 0; k < x.size() ; ++k) {
+                cout << "   k = " << k << endl;
+                if(i - x[k] > 0 && numCoins[i - x[k]] != -1){
+                    numCoins[i] = numCoins[i - x[k]] + 1;
+                    for(int z = 0; z < x.size(); ++z) 
+                        D[i][z] = D[i - x[k]][z];
+                    D[i][k] += 1;
+                }
+            }
+        }
+        cout << "Check that change was made for val" << endl;
+        if(numCoins[val] != -1) {
+            for(int k = 0; k < x.size(); ++k) 
+                change[k] = D[val][k];
+            return true;
+        }
+        else
+            return false;
+    }
+
+    static void testMakeChangeUnlimitedSupply() {
+        CoinChangeProblems ccp;
+        
+        vector<int> x {3, 4, 9};
+        int val;
+
+        cout << "Making change with denominations: ";
+        for(int d : x)
+            cout << setw(4) << d;
+        cout << endl;
+
+        cout << "Enter value to make change for or non-number to quit: ";
+  
+        while(cin >> val) {
+            vector<int> change(x.size(), 0);
+            cout << "Entered " << val << endl;;
+            if(ccp.makeChangeUnlimitedSupplyOfCoins(val, x, change)) {
+                cout << "Your change is: "; 
+                for(int k = 0; k < change.size(); ++k)
+                    if(change[k] != 0)
+                        cout << setw(4) << x[k] << ":" << setw(4) << change[k];
+                cout << endl;
+            }
+            else
+                cout << "Change illah!!!" << endl;
+            
+
+            cout << "Enter value to make change for or non-number to quit: ";
+        }
+    }
+
+    /*
+        Consider the following variation on the change-making problem (Exercise 6.17): you are given
+        denominations x 1 , x 2 , . . . , x n , and you want to make change for a value v, but you are allowed to
+        use each denomination at most once. For instance, if the denominations are 1, 5, 10, 20, then you
+        can make change for 16 = 1 + 15 and for 31 = 1 + 10 + 20 but not for 40 (because you can’t use 20
+        twice).
+        Input: Positive integers x 1 , x 2 , . . . , x n ; another integer v.
+        Output: Can you make change for v, using each denomination x i at most once?
+        Show how to solve this problem in time O(nv).
+    */
+    bool makeChangeUsingOneOfEach(int val, vector<int>& x, vector<bool>& change )     {
+        // K is our knapsack :)
+        // coins 1 .. j
+        // With coins, the weight and value are one and the same.
+        // K(w, j) = max value produced by coins 1 .. j for given cap w
+        // K(w, j) = max(K[w - x[j], j-1] + x[k], K(w, j-1))
+        vector<vector<int>> K(val+1, vector<int>(x.size()+1, 0));
+
+        // Maps a value to the coin set making up that value.
+        vector<vector<bool>> coinSetsForEachValue (val+1, vector<bool>(x.size(), false));
+
+        for(unsigned j = 0; j <= x.size(); ++j) 
+            K[0][j] = 0;
+        for(int w = 0; w <= val; ++w)
+            K[w][0] = 0;
+
+        // Go through each coin one by one.
+        for(unsigned i = 0; i < x.size(); ++i) {
+            unsigned j = i + 1;
+
+            // Try picking the coin for each value up to and including val
+            for(int w = 1; w <= val; ++w) {
+                int pickCoinVal = 0;
+                int notPickCoinVal = K[w][j-1];
+                if(w - x[i] >= 0) {
+                    pickCoinVal =  K[w - x[i]][j-1] + x[i];
+                    for(int z = 0; z < i; ++z)
+                        coinSetsForEachValue[w][z] = coinSetsForEachValue[w - x[i]][z];
+                }
+
+                if(pickCoinVal > notPickCoinVal) { // We're picking the coin
+                    coinSetsForEachValue[w][i] = true;
+                    K[w][j] = pickCoinVal;
+                } else {
+                    coinSetsForEachValue[w][i] = false;
+                    K[w][j] = notPickCoinVal;
+                }    
+            }
+        }
+        if(K[val][x.size()] == val) {
+            for(int i = 0; i < change.size(); ++i)
+                change[i] = coinSetsForEachValue[val][i];
+            return true;
+        } else
+            return false;
+        
+    }
+
+
+    static void testMakeChangeOneOfEach() {
+        CoinChangeProblems ccp;
+        
+        vector<int> x {1, 5, 10, 20 , 25};
+        int val;
+
+        cout << "Making change with one of each denominations: ";
+        for(int d : x)
+            cout << setw(4) << d;
+        cout << endl;
+
+        cout << "Enter value to make change for or non-number to quit: ";
+  
+        while(cin >> val) {
+            vector<bool> change(x.size(), false);
+            cout << "Entered " << val << endl;;
+            if(ccp.makeChangeUsingOneOfEach(val, x, change)) {
+                cout << "Your change is: "; 
+                for(int k = 0; k < change.size(); ++k)
+                    if(change[k] )
+                        cout << setw(4) << x[k];
+                cout << endl;
+            }
+            else
+                cout << "Change illah!!!" << endl;
+            
+
+            cout << "Enter value to make change for or non-number to quit: ";
+        }
+    }
+
+    /*
+     Give an efficient algorithm for the following task.
+    Input: n words (in sorted order); frequencies of these words: p 1 , p 2 , . . . , p n .
+    Output: The binary search tree of lowest cost (defined above as the expected number
+            of comparisons in looking up a word). 
+    */
+    // C(i, j) = min cost of binary tree constructed from words pi .. pj
+    // This bin tree can be divided into three parts consisting of words
+    // from pi .. pk-1, node for pk, and subtree made from pk+1 .. pj
+    // C(i, j) = min((depth + 1) C(i, k-1)
+    // Cost of node = depth * frequency
+    //
+    //             D
+    //            / \
+    //           /   \
+    //          B     F
+    //         / \   / \
+    //        /   \ /   \
+    //       A    C E    G
+    //
+    // Cost of Subtree B A C = B + 2A + 2C
+    // Cost of Subtree F E G = F + 2E + 2G
+    // Cost of tree = D + 2B + 2F + 3A + 3C + 3E + 3G
+    //              = D + 2B + 3A + 3C + 2F + 3E + 3G
+    //              = D + (B + A + C) + B + 2A + 2C + (F + E + G) + F + 2E + 2G
+    //              = D + Sum(BAC) + Cost of subtree BAC + Sum(FEG) + Cost of subtree FEG
+    // C(i, j) = min(pk + Sum(pi .. pk-1) + C(i, k-1) + Sum(pk+1 .. pj) + C(k+1, j))
+    // 1 1 1 1 1 1 1
+    // 1 2 3 4 5 6 7
+    //  
+    struct TreeNode {
+        int wordIndex;
+        TreeNode* left;
+        TreeNode* right;
+
+        TreeNode() : wordIndex(-1), left(NULL), right(NULL) {} 
+    };
+    struct Item {
+        int k;
+        int cost;
+        Item() : k(-1), cost(0) {}
+        Item(int ak, int acost) : k(ak), cost(acost) {}
+    };
+    class OptimalBinarySearchTrees {
+        vector<vector<Item>> C;
+        vector<int> sums;
+        vector<TreeNode> nodes;
+    public:
+        OptimalBinarySearchTrees(vector<int>& p) : C(p.size(), vector<Item>(p.size()), 
+                                                   sums(p.size(), 0),
+                                                   nodes(p.size()) {
+            int sum = 0;
+            for(int i = 0; i < p.size(); ++i) {
+                sum += p[i];
+                sums[i] = sum;
+            }
+
+            // Solve the problem for subproblems of size 1
+            for(int i = 0; i < p.size(); ++i) 
+                C[i][i] = Item(i, p[i]);
+            // Solve for size 2 as well.
+            for(int i = 0; i < p.size()-1; ++i) {
+                if(p[i] < p[i+1])
+                    C[i][i+1] = Item(i, p[i+1] + 2*p[i]);
+                else
+                    C[i][i+1] = Item(i+1, p[i] + 2*p[i+1]);
+            }
+            
+            for(int s = 2; s < p.size(); ++s) {
+                for(int i = 0; i < p.size(); ++i) {
+                    int j = i + s;
+                    Item minItem;
+                    minItem.cost = MOTTU_INF;
+                    for(int k = i+1; k < j; ++k) {
+                        int curCost = p[k] + (sums[k-1] - sums[i] + p[i])   + C[i][k-1] 
+                                           + (sums[j] - sums[k+1] + p[k+1]) + C[k+1][j];
+                        if(curCost < minItem.cost) {
+                            minItem.cost = curCost;
+                            minItem.k = k;
+                        }
+                    }
+                }
+            }
+        }
+        
+        struct QueueItem {
+            int beg;
+            int end;
+            QueueItem(int b, int e) : beg(b), end(e) {}
+        };
+        TreeNode* makeTree(int& cost) {
+            TreeNode* root;
+            queue<QueueItem> nodeIndexQueue;
+            int k = C[0][p.size()-1].k;
+
+            root = nodes[C[0][p.size()-1].k].wordIndex = k;
+            cost = C[0][p.size()-1].cost;
+            nodeIndexQueue.push(QueueItem(0, k-1));
+            nodeIndexQueue.push(QueueItem(k+1, p.size()-1));
+
+            while(!nodeIndexQueue.empty()) {
+                QueueItem item = nodeIndexQueue.
+            }
+
+            for(int z = 1; z < p.size(); ++z) {
+                
+            }
+
+
+        }
+    };
+ 
+};
+
+
+
 int main() {
     //ContigSubseq cs;
     //cs.test();
@@ -843,7 +1415,11 @@ int main() {
     //ss.test();
     //CountingHeads ch;
     //ch.test();
-    LongestCommonSubSeq lcs;
-    lcs.test();
+    //LongestCommonSubSeq lcs;
+    //lcs.test();
+    //CardSeqGame::test();
+    //CuttingCloth::test();
+    //CoinChangeProblems::testMakeChangeUnlimitedSupply();
+    CoinChangeProblems::testMakeChangeOneOfEach();
     return 0;
 }

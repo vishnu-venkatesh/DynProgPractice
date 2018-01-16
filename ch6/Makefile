@@ -1,6 +1,6 @@
 # Simple makefile to build practice solutions
 #http://mrbook.org/blog/tutorials/make/ 
-CC=g++
+CC=clang++
 CFLAGS=-g -O2 -std=c++11 -Wall -pedantic
 INC=/home/vishnu/mottuPractice/mottuInc
 all: dynProg
