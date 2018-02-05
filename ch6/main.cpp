@@ -1314,7 +1314,7 @@ public:
     // 1 1 1 1 1 1 1
     // 1 2 3 4 5 6 7
     //  
-    struct TreeNode {
+/*    struct TreeNode {
         int wordIndex;
         TreeNode* left;
         TreeNode* right;
@@ -1332,7 +1332,7 @@ public:
         vector<int> sums;
         vector<TreeNode> nodes;
     public:
-        OptimalBinarySearchTrees(vector<int>& p) : C(p.size(), vector<Item>(p.size()), 
+        OptimalBinarySearchTrees(vector<int>& p) : C(p.size(), vector<Item>(p.size())), 
                                                    sums(p.size(), 0),
                                                    nodes(p.size()) {
             int sum = 0;
@@ -1394,7 +1394,9 @@ public:
 
 
         }
+        
     };
+    */
  
 };
 

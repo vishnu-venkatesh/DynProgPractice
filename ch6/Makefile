@@ -2,7 +2,7 @@
 #http://mrbook.org/blog/tutorials/make/ 
 CC=clang++
 CFLAGS=-g -O2 -std=c++11 -Wall -pedantic
-INC=/home/vishnu/mottuPractice/mottuInc
+INC=../../mottuInc
 all: dynProg
 
 dynProg: main.cpp
